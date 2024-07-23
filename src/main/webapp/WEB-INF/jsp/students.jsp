@@ -24,7 +24,11 @@
             </div>
             <div class="eeerrr">
                     <div class="e"><a href="studentProgress.html"><button class="e11"> Просмотреть успеваемость выбранных студентов</button></a></div>
-                    <div class="ee"><a href="studentCreating.html"><button class="e22">Создать студента...</button></a> <br></div> <br>
+                    <div class="ee"><a>
+                    <form action="/student_create" method="get">
+                        <button class="e22">Создать студента...</button>
+                    </form>
+                    </a> <br></div> <br>
                     <div class="r"><a href="studentModifying.html"><button class="r11">Модифицировать выбранного студента...</button></a></div>
                     <div class="rr"><a href=""><button class="r22">Удалить выбранных студентов</button></a></div>
             </div>
