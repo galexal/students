@@ -2,6 +2,7 @@ package db;
 
 import entity.Group;
 import entity.Student;
+import services.StringService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -55,14 +56,16 @@ public class DBManager {
 
     public static int getGroupId(String groupName) {
         try {
-            ResultSet resultSet = statement.executeQuery(String.format("SELECT id FROM students.groupp AS g WHERE g.group='%s';", groupName));
+            ResultSet resultSet = statement.executeQuery(String.format("SELECT id FROM students.groupp AS g " +
+                    "WHERE g.group='%s';", groupName));
 
             while (resultSet.next()) {
                 return resultSet.getInt(ID);
             }
 
             statement.execute(String.format("INSERT INTO groupp (`group`) VALUES ('%s');", groupName));
-            resultSet = statement.executeQuery(String.format("SELECT id FROM students.groupp AS g WHERE g.group='%s';", groupName));
+            resultSet = statement.executeQuery(String.format("SELECT id FROM students.groupp AS g " +
+                    "WHERE g.group='%s';", groupName));
 
             while (resultSet.next()) {
                 return resultSet.getInt(ID);
@@ -76,11 +79,53 @@ public class DBManager {
 
     public static void createStudent(String surname, String name, int groupId, String date) {
         try {
-            statement.execute(String.format("INSERT INTO student (`surname`,`name`,`id_group`,`date`) VALUES ('%s', '%s', '%d', '%s');",
-                    surname,name,groupId,date));
+            statement.execute(String.format(
+                    "INSERT INTO student (`surname`,`name`,`id_group`,`date`) VALUES ('%s', '%s', '%d', '%s');",
+                    surname, name, groupId, date));
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public static void deleteStudents(String[] ids) {
+        try {
+            statement.execute(String.format("UPDATE `students`.`student` SET `status` = '0' WHERE `id` IN (%s);",
+                    StringService.convertIdsIntoString(ids)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Student getStudentById(String id) {
+        Student student = new Student();
+        try {
+            ResultSet result = statement.executeQuery(String.format("SELECT s.id, surname, name, date, g.group " +
+                    "FROM students.student AS s JOIN groupp AS g ON s.id_group=g.id WHERE s.id='%s';", id));
+            while (result.next()) {
+                student.setId(result.getInt(ID));
+                student.setName(result.getString(NAME));
+                student.setSurname(result.getString(SURNAME));
+                student.setDate(result.getDate(DATE));
+
+                Group group = new Group();
+                group.setName(result.getString(GROUP));
+                student.setGroup(group);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return student;
+    }
+
+    public static void modifyStudent(String id, String surname, String name, int groupId, String date) {
+        try {
+            statement.execute(String.format(
+                    "UPDATE `students`.`student` SET `surname` = '%s', `name` = '%s', `id_group` = '%d', " +
+                            "`date` = '%s' WHERE (`id` = '%s');",
+                    surname, name, groupId, date, id));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
