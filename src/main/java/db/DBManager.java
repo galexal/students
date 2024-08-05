@@ -1,7 +1,6 @@
 package db;
 
-import entity.Group;
-import entity.Student;
+import entity.*;
 import services.StringService;
 
 import java.sql.*;
@@ -10,6 +9,10 @@ import java.util.List;
 
 public class DBManager {
 
+    public static final String TERM_NAME = "term";
+    public static final String GRADE_VALUE = "value";
+    public static final String DISCIPLINE_ID = "id_discipline";
+    public static final String DISCIPLINE_NAME = "discipline";
     private static Statement statement;
     private static final String ID = "id";
     private static final String NAME = "name";
@@ -52,6 +55,22 @@ public class DBManager {
             e.printStackTrace();
         }
         return students;
+    }
+
+    public static List<Term> getAllActiveTerms() {
+        List<Term> terms = new ArrayList<>();
+        try {
+            ResultSet result = statement.executeQuery("SELECT id, term FROM students.term WHERE status='1';");
+            while (result.next()) {
+                Term term = new Term();
+                term.setId(result.getInt(ID));
+                term.setName(result.getString(TERM_NAME));
+                terms.add(term);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return terms;
     }
 
     public static int getGroupId(String groupName) {
@@ -127,5 +146,27 @@ public class DBManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Grade> getGradesByStudentAndTermId(String studentId, String termId) {
+        List<Grade> grades = new ArrayList<>();
+        try {
+ResultSet resultSet = statement.executeQuery(String.format("SELECT id_discipline, discipline, value FROM students.grade as g " +
+        "JOIN term_discipline as td on g.id_term_discipline = td.id " +
+        "JOIN discipline as d on td.id_discipline = d.id " +
+        "WHERE g.id_student = '%s' AND td.id_term = '%s';", studentId, termId));
+            while (resultSet.next()) {
+                Grade grade = new Grade();
+                grade.setValue(resultSet.getInt(GRADE_VALUE));
+                Discipline discipline = new Discipline();
+                discipline.setId(resultSet.getInt(DISCIPLINE_ID));
+                discipline.setName(resultSet.getString(DISCIPLINE_NAME));
+                grade.setDiscipline(discipline);
+                grades.add(grade);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return grades;
     }
 }
