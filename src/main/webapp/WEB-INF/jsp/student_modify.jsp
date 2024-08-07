@@ -24,7 +24,15 @@
 <body>
 <span>
         <h1>Система управления студентами и их успеваемостью</h1>
-        <a class="Logout" href="">Logout</a>
+                    <c:choose>
+                        <c:when test="${isAuthorised eq true}">
+                            <p>Привет, ${login}!</p>
+                            <a class="Logout" href="/logout">Logout</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="Logout" href="/login">Login</a>
+                        </c:otherwise>
+                    </c:choose>
     </span>
 <div class="navP">
     <nav>

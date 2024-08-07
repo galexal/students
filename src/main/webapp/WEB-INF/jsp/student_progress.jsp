@@ -15,7 +15,15 @@
 <body>
 <div>
     <h1>Система управления студентами и их успеваемостью</h1>
-    <a class="Logout" href="">Logout</a>
+    <c:choose>
+        <c:when test="${isAuthorised eq true}">
+            <p>Привет, ${login}!</p>
+            <a class="Logout" href="/logout">Logout</a>
+        </c:when>
+        <c:otherwise>
+            <a class="Logout" href="/login">Login</a>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <div class="navP">
@@ -38,7 +46,7 @@
             <td>${student.surname}</td>
             <td>${student.name}</td>
             <td>${student.group.name}</td>
-            <td>${student.date}</td>
+            <td><f:formatDate value="${student.date}" pattern="d/MM/yyyy"/> </td>
         </tr>
     </table>
 </div>
@@ -54,7 +62,9 @@
             <c:forEach items="${grades}" var="g">
                 <tr>
                     <td>${g.discipline.name}</td>
-                    <td>${g.value}</td>
+                    <c:if test="${g.value ne -1}">
+                        <td>${g.value}</td>
+                    </c:if>
                 </tr>
             </c:forEach>
         </table>
@@ -80,7 +90,7 @@
             <input type="hidden" name="idForProgress" value="${student.id}"/>
         </form>
         <br>
-        <p>Средняя оценка за семестр: <input type="hidden"></p>
+        <p>Средняя оценка за семестр: <f:formatNumber value="${avgGrade}" maxFractionDigits="2"/> <input type="hidden"></p>
     </div>
 </div>
 </body>

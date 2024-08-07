@@ -13,6 +13,7 @@ public class DBManager {
     public static final String GRADE_VALUE = "value";
     public static final String DISCIPLINE_ID = "id_discipline";
     public static final String DISCIPLINE_NAME = "discipline";
+    public static final String ROLE = "role";
     private static Statement statement;
     private static final String ID = "id";
     private static final String NAME = "name";
@@ -151,10 +152,10 @@ public class DBManager {
     public static List<Grade> getGradesByStudentAndTermId(String studentId, String termId) {
         List<Grade> grades = new ArrayList<>();
         try {
-ResultSet resultSet = statement.executeQuery(String.format("SELECT id_discipline, discipline, value FROM students.grade as g " +
-        "JOIN term_discipline as td on g.id_term_discipline = td.id " +
-        "JOIN discipline as d on td.id_discipline = d.id " +
-        "WHERE g.id_student = '%s' AND td.id_term = '%s';", studentId, termId));
+            ResultSet resultSet = statement.executeQuery(String.format("SELECT id_discipline, discipline, value FROM students.grade as g " +
+                    "JOIN term_discipline as td on g.id_term_discipline = td.id " +
+                    "JOIN discipline as d on td.id_discipline = d.id " +
+                    "WHERE g.id_student = '%s' AND td.id_term = '%s';", studentId, termId));
             while (resultSet.next()) {
                 Grade grade = new Grade();
                 grade.setValue(resultSet.getInt(GRADE_VALUE));
@@ -168,5 +169,53 @@ ResultSet resultSet = statement.executeQuery(String.format("SELECT id_discipline
             e.printStackTrace();
         }
         return grades;
+    }
+
+    public static List<Discipline> getDisciplinesByTermId(String termId) {
+        List<Discipline> result = new ArrayList<>();
+        try {
+            ResultSet resultSet = statement.executeQuery(String.format("SELECT d.discipline FROM term_discipline as td " +
+                    "JOIN discipline AS d ON td.id_discipline = d.id " +
+                    "WHERE id_term = '%s';", termId));
+
+            while (resultSet.next()) {
+                Discipline discipline = new Discipline();
+                discipline.setName(resultSet.getString(DISCIPLINE_NAME));
+                result.add(discipline);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static List<Role> getAllRoles() {
+        List<Role> result = new ArrayList<>();
+        try {
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM role;");
+
+            while (resultSet.next()) {
+                Role role = new Role();
+                role.setName(resultSet.getString(ROLE));
+                role.setId(resultSet.getInt(ID));
+                result.add(role);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static boolean isAuthorised(String login, String password, String roleId) {
+        try {
+            ResultSet resultSet = statement.executeQuery(String.format("SELECT * FROM user_role AS ur " +
+                    "JOIN user AS u on ur.id_user = u.id " +
+                    "WHERE ur.id_role = '%s' AND u.user = '%s' AND u.password = '%s';", roleId, login, password));
+
+            return resultSet.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

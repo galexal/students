@@ -15,7 +15,15 @@
 <body>
 <div>
     <h1>Система управления студентами и их успеваемостью</h1>
-    <a class="Logout" href="">Logout</a>
+    <c:choose>
+        <c:when test="${isAuthorised eq true}">
+            <p>Привет, ${login}!</p>
+            <a class="Logout" href="/logout">Logout</a>
+        </c:when>
+        <c:otherwise>
+            <a class="Logout" href="/login">Login</a>
+        </c:otherwise>
+    </c:choose>
 </div>
 <div class="a_aButton">
     <div class="a">
@@ -27,18 +35,20 @@
         <div class="e"><a>
             <button onclick="studentProgress()" class="e11"> Просмотреть успеваемость выбранных студентов</button>
         </a></div>
-        <div class="ee"><a>
-            <form action="/student_create" method="get">
-                <button class="e22">Создать студента...</button>
-            </form>
-        </a> <br></div>
-        <br>
-        <div class="r"><a>
-            <button onclick="modifyStudents()" class="r11">Модифицировать выбранного студента...</button>
-        </a></div>
-        <div class="rr"><a>
-            <button onclick="deleteStudents()" class="r22">Удалить выбранных студентов</button>
-        </a></div>
+        <c:if test="${role eq 1}">
+            <div class="ee"><a>
+                <form action="/student_create" method="get">
+                    <button class="e22">Создать студента...</button>
+                </form>
+            </a> <br></div>
+            <br>
+            <div class="r"><a>
+                <button onclick="modifyStudents()" class="r11">Модифицировать выбранного студента...</button>
+            </a></div>
+            <div class="rr"><a>
+                <button onclick="deleteStudents()" class="r22">Удалить выбранных студентов</button>
+            </a></div>
+        </c:if>
     </div>
 </div>
 <div>
